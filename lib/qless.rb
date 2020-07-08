@@ -173,11 +173,16 @@ module Qless
     attr_reader :_qless, :config, :redis, :jobs, :queues, :workers
     attr_accessor :worker_name
 
-    def initialize(options = {})
+    def initialize(options_or_connector = {})
       # This is the redis instance we're connected to. Use connect so REDIS_URL
       # will be honored
-      @connector = RedisConnector.new(options)
-      @redis     = options[:redis] || @connector.connect
+      if options_or_connector.is_a?(Hash)
+        @connector = RedisConnector.new(options_or_connector)
+        @redis     = options_or_connector[:redis] || @connector.connect
+      else
+        @connector = options_or_connector
+        @redis = @connector.connect
+      end
 
       assert_minimum_redis_version('2.5.5')
 
@@ -191,7 +196,7 @@ module Qless
     end
 
     def inspect
-      "<Qless::Client #{@connector.options} >"
+      "<Qless::Client #{@connector} >"
     end
 
     def events

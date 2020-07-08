@@ -26,15 +26,6 @@ describe Qless do
     allow_any_instance_of(redis_class).to receive(:dup).and_return(redis)
   end
 
-  around do |example|
-    original = Qless::RedisConnector.redis_klass
-    Qless::RedisConnector.redis_klass = redis_class
-
-    example.run
-
-    Qless::RedisConnector.redis_klass = original
-  end
-
   describe '#worker_name' do
     it 'includes the hostname in the worker name' do
       Qless::Client.new.worker_name.should include(Socket.gethostname)
@@ -82,6 +73,18 @@ describe Qless do
       # Prepare stub to ensure second connection is instantiated with the same options as initial connection
       redis_class.stub(:new).with(options)
       client.new_redis_connection
+    end
+
+    it 'connects with connector' do
+      connector = instance_double('MyConnector')
+
+      connector.stub(connect: redis)
+      connector.stub(to_s: 'test')
+
+      client = Qless::Client.new(connector)
+
+      client.redis.should be(redis)
+      client.inspect.should eq('<Qless::Client test >')
     end
   end
 
