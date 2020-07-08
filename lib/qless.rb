@@ -26,6 +26,7 @@ require 'qless/queue'
 require 'qless/job'
 require 'qless/lua_script'
 require 'qless/failure_formatter'
+require 'qless/redis_connector'
 
 # The top level container for all things qless
 module Qless
@@ -172,12 +173,19 @@ module Qless
     attr_reader :_qless, :config, :redis, :jobs, :queues, :workers
     attr_accessor :worker_name
 
-    def initialize(options = {})
+    def initialize(options_or_connector = {})
       # This is the redis instance we're connected to. Use connect so REDIS_URL
       # will be honored
-      @redis   = options[:redis] || Redis.connect(options)
-      @options = options
+      if options_or_connector.is_a?(Hash)
+        @connector = RedisConnector.new(options_or_connector)
+        @redis     = options_or_connector[:redis] || @connector.connect
+      else
+        @connector = options_or_connector
+        @redis = @connector.connect
+      end
+
       assert_minimum_redis_version('2.5.5')
+
       @config = Config.new(self)
       @_qless = Qless::LuaScript.new('qless', @redis)
 
@@ -188,14 +196,14 @@ module Qless
     end
 
     def inspect
-      "<Qless::Client #{@options} >"
+      "<Qless::Client #{@connector} >"
     end
 
     def events
       # Events needs its own redis instance of the same configuration, because
       # once it's subscribed, we can only use pub-sub-like commands. This way,
       # we still have access to the client in the normal case
-      @events ||= ClientEvents.new(Redis.connect(@options))
+      @events ||= ClientEvents.new(@connector.connect)
     end
 
     def call(command, *argv)
@@ -222,14 +230,8 @@ module Qless
       call('cancel', jids)
     end
 
-    if ::Redis.instance_method(:dup).owner == ::Redis
-      def new_redis_connection
-        redis.dup
-      end
-    else # redis version < 3.0.7
-      def new_redis_connection
-        ::Redis.new(@options)
-      end
+    def new_redis_connection
+      @connector.dup_connection(redis)
     end
 
     def ==(other)

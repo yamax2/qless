@@ -54,10 +54,10 @@ module Qless
 
     # Module for notifying when a script hasn't yet been loaded
     module ScriptNotLoadedRedisCommandError
-      MESSAGE = 'NOSCRIPT No matching script. Please use EVAL.'
+      MESSAGE = /^NOSCRIPT\b/
 
       def self.===(error)
-        error.is_a?(Redis::CommandError) && error.message == MESSAGE
+        error.is_a?(Redis::CommandError) && error.message =~ MESSAGE
       end
     end
 
