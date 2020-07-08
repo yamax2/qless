@@ -4,6 +4,7 @@ require 'json'
 require 'socket'
 require 'tempfile'
 
+require 'qless'
 require 'spec_helper'
 
 describe 'qless-stats', :integration do

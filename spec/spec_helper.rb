@@ -47,7 +47,7 @@ module RedisHelpers
   end
 
   def redis_url
-    return 'redis://localhost:6379/0' if redis_config.empty?
+    return 'redis://redis:6379/0' if redis_config.empty?
     c = redis_config
     "redis://#{c[:host]}:#{c[:port]}/#{c.fetch(:db, 0)}"
   end

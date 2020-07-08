@@ -1,0 +1,32 @@
+version: '3.3'
+
+environment:
+  DOCKER_RUBY_VERSION: 2.4
+
+compose:
+  files:
+    - docker/docker-compose.yml
+  project_name: qless
+
+interaction:
+  sh:
+    service: app
+    command: bash
+
+  irb:
+    service: app
+    command: bundle exec irb
+
+  bundle:
+    service: app
+    command: bundle
+
+  rspec:
+    service: app
+    environment:
+    command: bundle exec rspec --tag ~js
+
+provision:
+  - docker volume create --name bundler_data
+  - dip bundle install --without extras
+  # - dip bundle exec rake core:build

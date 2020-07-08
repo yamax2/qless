@@ -16,3 +16,5 @@ phantomjs/
 
 .rspec-local
 .idea
+.byebug_history
+Gemfile.lock
