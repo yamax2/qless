@@ -20,5 +20,5 @@ group :development do
   gem 'thin'
   gem 'timecop'
 
-  gem 'sentry-raven', '= 2.9.0'
+  gem 'sentry-raven', '< 3'
 end
