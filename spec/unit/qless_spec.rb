@@ -22,7 +22,8 @@ describe Qless do
 
   before do
     redis.stub(:script) # so no scripts get loaded
-    redis_class.stub(connect: redis)
+    redis_class.stub(new: redis)
+    allow_any_instance_of(redis_class).to receive(:dup).and_return(redis)
   end
 
   describe '#worker_name' do
@@ -72,6 +73,17 @@ describe Qless do
       # Prepare stub to ensure second connection is instantiated with the same options as initial connection
       redis_class.stub(:new).with(options)
       client.new_redis_connection
+    end
+
+    it 'creates a new redis instance with dup' do
+      options = { redis: redis }
+      client = Qless::Client.new(options)
+
+      client.redis.should be(redis)
+      new_redis = instance_double('Redis')
+
+      redis.stub(dup: new_redis)
+      client.new_redis_connection.should be(new_redis)
     end
   end
 

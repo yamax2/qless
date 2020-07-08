@@ -175,9 +175,11 @@ module Qless
     def initialize(options = {})
       # This is the redis instance we're connected to. Use connect so REDIS_URL
       # will be honored
-      @redis   = options[:redis] || Redis.connect(options)
+      @redis   = options[:redis] || Redis.new(options)
       @options = options
+
       assert_minimum_redis_version('2.5.5')
+
       @config = Config.new(self)
       @_qless = Qless::LuaScript.new('qless', @redis)
 
@@ -195,7 +197,7 @@ module Qless
       # Events needs its own redis instance of the same configuration, because
       # once it's subscribed, we can only use pub-sub-like commands. This way,
       # we still have access to the client in the normal case
-      @events ||= ClientEvents.new(Redis.connect(@options))
+      @events ||= ClientEvents.new(new_redis_connection)
     end
 
     def call(command, *argv)
@@ -222,14 +224,8 @@ module Qless
       call('cancel', jids)
     end
 
-    if ::Redis.instance_method(:dup).owner == ::Redis
-      def new_redis_connection
-        redis.dup
-      end
-    else # redis version < 3.0.7
-      def new_redis_connection
-        ::Redis.new(@options)
-      end
+    def new_redis_connection
+      @redis.dup
     end
 
     def ==(other)
