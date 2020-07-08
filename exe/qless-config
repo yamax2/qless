@@ -6,7 +6,7 @@ require 'thor'
 
 class Configurator < Thor
 
-  class_option :redis, :default => 'redis://localhost:6379/0'
+  class_option :redis, :default => 'redis://redis:6379/0'
 
   no_commands do
     def qless

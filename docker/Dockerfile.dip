@@ -1,0 +1,12 @@
+FROM ruby:2.4
+
+RUN apt-get update && apt-get install -y autoconf bison build-essential git g++ libssl-dev libyaml-dev \
+  libreadline6-dev zlib1g-dev libncurses5-dev fontconfig libxml2-dev libxslt-dev libffi-dev
+
+RUN ssh-keyscan -H github.com >> /etc/ssh/ssh_known_hosts
+
+RUN wget --quiet https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/phantomjs/phantomjs-1.7.0-linux-x86_64.tar.bz2 && \
+  tar xjf phantomjs-1.7.0-linux-x86_64.tar.bz2 && \
+  mv phantomjs-1.7.0-linux-x86_64/bin/phantomjs /usr/local/bin/
+
+WORKDIR /app

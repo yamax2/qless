@@ -1,0 +1,34 @@
+version: '3.3'
+
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile.dip
+      args:
+        gem_user: ${GEM_USER}
+        gem_password: ${GEM_PASSWORD}
+    environment:
+      - BUNDLE_PATH=/bundle/${DOCKER_RUBY_VERSION}
+      - SSH_AUTH_SOCK=/ssh/auth/sock
+      - QT_QPA_PLATFORM=offscreen
+    volumes:
+      - ..:/app
+      - ../../gems:/localgems
+      - ssh-data:/ssh:ro
+      - bundler-data:/bundle
+    depends_on:
+      - redis
+    command: sh
+
+  redis:
+    image: redis:4.0.14-alpine
+
+volumes:
+  bundler-data:
+    external:
+      name: bundler_data
+
+  ssh-data:
+    external:
+      name: ssh_data
