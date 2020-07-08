@@ -22,7 +22,17 @@ describe Qless do
 
   before do
     redis.stub(:script) # so no scripts get loaded
-    redis_class.stub(connect: redis)
+    redis_class.stub(new: redis)
+    allow_any_instance_of(redis_class).to receive(:dup).and_return(redis)
+  end
+
+  around do |example|
+    original = Qless::RedisConnector.redis_klass
+    Qless::RedisConnector.redis_klass = redis_class
+
+    example.run
+
+    Qless::RedisConnector.redis_klass = original
   end
 
   describe '#worker_name' do
