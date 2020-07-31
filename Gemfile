@@ -19,4 +19,6 @@ group :development do
   gem 'simplecov'
   gem 'thin'
   gem 'timecop'
+
+  gem 'sentry-raven', '< 3'
 end
