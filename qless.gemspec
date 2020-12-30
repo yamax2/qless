@@ -37,7 +37,6 @@ language-specific extension will also remain up to date.
   s.add_dependency 'metriks', '>= 0.9'
   s.add_dependency 'redis', '>= 4.0'
   s.add_dependency 'rusage', '>= 0.2.0'
-  s.add_dependency 'sentry-raven', '>= 0.15.6'
   s.add_dependency 'sinatra', '>= 1.3'
   s.add_dependency 'statsd-ruby', '>= 1.3'
   s.add_dependency 'thin', '>= 1.6'
